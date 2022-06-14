@@ -1,5 +1,5 @@
 
-from bot import CompetitiveBot
+from bot import MarineRushBot
 
 import argparse
 import asyncio
@@ -102,11 +102,11 @@ def parse_arguments():
 
 def load_bot(args):
     # Load bot
-    competitive_bot = CompetitiveBot()
+    competitive_bot = MarineRushBot()
     # Add opponent_id to the bot class (accessed through self.opponent_id)
     competitive_bot.opponent_id = args.OpponentId
 
-    return Bot(CompetitiveBot.RACE, competitive_bot)
+    return Bot(MarineRushBot.RACE, competitive_bot)
 
 
 def run():
