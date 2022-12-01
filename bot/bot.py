@@ -6,6 +6,10 @@ class MarineRushBot(BotAI):
     NAME: str = "MarineRushBot"
     RACE: Race = Race.Terran
 
+    async def on_unit_took_damage(self, unit: UnitTypeId.MARINE, amount_damage_taken: float):
+        print('unit took demage')
+        return await super().on_unit_took_damage(unit, amount_damage_taken)
+
     async def on_step(self, iteration: int):
         # Jestliže mám Command Center
         if self.townhalls:
