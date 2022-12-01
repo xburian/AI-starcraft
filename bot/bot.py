@@ -166,9 +166,10 @@ class MarineRushBot(BotAI):
                 self.groupSize += 1
                 await self.distribute_workers()
                 print('------------------------')
-                print('marine',self.units.filter(lambda u: u.type_id == UnitTypeId.MARINE).amount)
-                print('reapers',self.units.filter(lambda u: u.type_id == UnitTypeId.REAPER).amount)
-                print('vikings',self.units.filter(lambda u: u.type_id == UnitTypeId.VIKINGFIGHTER).amount)
+                print('[INFO] group size' + str(self.groupSize))
+                print('[INFO] marine',self.units.filter(lambda u: u.type_id == UnitTypeId.MARINE).amount)
+                print('[INFO] reapers',self.units.filter(lambda u: u.type_id == UnitTypeId.REAPER).amount)
+                print('[INFO] vikings',self.units.filter(lambda u: u.type_id == UnitTypeId.VIKINGFIGHTER).amount)
                 print('[INFO] ' + str(len(self.attackGroup)))
                 print('[INFO] ' + str(self.isAttacking))
                 print('------------------------')
