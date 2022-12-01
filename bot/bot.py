@@ -7,8 +7,13 @@ class MarineRushBot(BotAI):
     RACE: Race = Race.Terran
 
     async def on_unit_took_damage(self, unit: UnitTypeId.MARINE, amount_damage_taken: float):
-        print('unit took demage')
-        return await super().on_unit_took_damage(unit, amount_damage_taken)
+        print('MARINE took demage')
+        target = self.enemy_structures.random_or(
+        self.enemy_start_locations[0]).position
+
+        idle_marines = self.units(UnitTypeId.MARINE).idle
+        for marine in idle_marines:
+                marine.attack(target)
 
     async def on_step(self, iteration: int):
         # Jestliže mám Command Center
@@ -43,6 +48,15 @@ class MarineRushBot(BotAI):
                         await self.build(
                             UnitTypeId.BARRACKS,
                             near=command_center.position.towards(self.game_info.map_center, 8))
+                if self.structures(UnitTypeId.REFINERY).amount == 0:
+                    if self.can_afford(UnitTypeId.REFINERY) and not self.already_pending(UnitTypeId.REFINERY):
+                        gs = self.vespene_geyser.closer_than(10, command_center)
+                        for g in gs:
+                            if await self.can_place(UnitTypeId.REFINERY, g.position):
+                                if self.workers.gathering.exists:
+                                    worker = self.workers.gathering.closest_to(g)
+                                    print(str(worker) + 'is going to build REFINERY')
+                                    worker.build(UnitTypeId.REFINERY, g)        
 
             # -----------------------------------------------------------------------------------
             # Trenovani jednotek
@@ -77,30 +91,3 @@ class MarineRushBot(BotAI):
             # Zbylý SCV bot pošle těžit minerály nejblíže Command Center
             for scv in self.workers.idle:
                 scv.gather(self.mineral_field.closest_to(command_center))
-
-            # -----------------------------------------------------------------------------------
-            # Opetovani palby
-            # -----------------------------------------------------------------------------------
-
-            # Pokud enemy zautoci, opetuj palbu
-            if self.on_unit_took_damage(UnitTypeId.MARINE, 5):
-
-                target = self.enemy_structures.random_or(
-                    self.enemy_start_locations[0]).position
-
-                idle_marines = self.units(UnitTypeId.MARINE).idle
-                for marine in idle_marines:
-                    marine.attack(target)
-
-            if self.on_unit_took_damage(UnitTypeId.REAPER, 5):
-
-                target = self.enemy_structures.random_or(
-                    self.enemy_start_locations[0]).position
-
-                idle_marines = self.units(UnitTypeId.REAPER).idle
-                for marine in idle_marines:
-                    marine.attack(target)
-
-
-
-
