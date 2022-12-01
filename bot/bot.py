@@ -1,5 +1,4 @@
 from sc2.bot_ai import BotAI, Race
-from sc2.data import Result
 from sc2.ids.unit_typeid import UnitTypeId
 
 
@@ -12,6 +11,10 @@ class MarineRushBot(BotAI):
         if self.townhalls:
             # První Command Center
             command_center = self.townhalls[0]
+
+            # -----------------------------------------------------------------------------------
+            # Trenovani stavitelu, budov
+            # -----------------------------------------------------------------------------------
 
             # Trénování SCV
             # Bot trénuje nová SCV, jestliže je jich méně než 17
@@ -37,6 +40,10 @@ class MarineRushBot(BotAI):
                             UnitTypeId.BARRACKS,
                             near=command_center.position.towards(self.game_info.map_center, 8))
 
+            # -----------------------------------------------------------------------------------
+            # Trenovani jednotek
+            # -----------------------------------------------------------------------------------
+
             # Trénování jednotky Marine
             # Pouze, má-li bot postavené Barracks a může si jednotku dovolit
             if self.structures(UnitTypeId.BARRACKS) and self.can_afford(UnitTypeId.MARINE):
@@ -44,7 +51,17 @@ class MarineRushBot(BotAI):
                 for barrack in self.structures(UnitTypeId.BARRACKS).idle:
                     barrack.train(UnitTypeId.MARINE)
 
+            # Trénování jednotky Reaper
+            # Pouze, má-li bot postavené Barracks a může si jednotku dovolit
+            if self.structures(UnitTypeId.BARRACKS) and self.can_afford(UnitTypeId.REAPER):
+                # Každá budova Barracks trénuje v jeden čas pouze jednu jednotku (úspora zdrojů)
+                for barrack in self.structures(UnitTypeId.BARRACKS).idle:
+                    barrack.train(UnitTypeId.REAPER)
+
+            # -----------------------------------------------------------------------------------
             # Útok s jednotkou Marine
+            # -----------------------------------------------------------------------------------
+
             # Má-li bot více než 15 volných jednotek Marine, zaútočí na náhodnou nepřátelskou budovu nebo se přesune na jeho startovní pozici
             idle_marines = self.units(UnitTypeId.MARINE).idle
             if idle_marines.amount > 15:
@@ -56,3 +73,30 @@ class MarineRushBot(BotAI):
             # Zbylý SCV bot pošle těžit minerály nejblíže Command Center
             for scv in self.workers.idle:
                 scv.gather(self.mineral_field.closest_to(command_center))
+
+            # -----------------------------------------------------------------------------------
+            # Opetovani palby
+            # -----------------------------------------------------------------------------------
+
+            # Pokud enemy zautoci, opetuj palbu
+            if self.on_unit_took_damage(UnitTypeId.MARINE, 5):
+
+                target = self.enemy_structures.random_or(
+                    self.enemy_start_locations[0]).position
+
+                idle_marines = self.units(UnitTypeId.MARINE).idle
+                for marine in idle_marines:
+                    marine.attack(target)
+
+            if self.on_unit_took_damage(UnitTypeId.REAPER, 5):
+
+                target = self.enemy_structures.random_or(
+                    self.enemy_start_locations[0]).position
+
+                idle_marines = self.units(UnitTypeId.REAPER).idle
+                for marine in idle_marines:
+                    marine.attack(target)
+
+
+
+
